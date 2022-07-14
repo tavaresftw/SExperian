@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
+import com.serasa.exception.GeneralException;
 import com.serasa.model.Vendedor;
 import com.serasa.model.VendedorListaResponseDto;
-import com.serasa.model.VendedorResponseDto;
 import com.serasa.repository.VendedorRepository;
 
 @SpringBootTest(classes = VendedorService.class)
@@ -40,13 +40,11 @@ public class VendedorServiceTest {
 	
 	@Test
 	void buscaPorId() {
-		VendedorResponseDto vendedorResponseDto = Mockito.mock(VendedorResponseDto.class, Answers.RETURNS_MOCKS);
-		Optional<Vendedor> vendedor = Optional.of(Mockito.mock(Vendedor.class, Answers.RETURNS_MOCKS));
+		Optional<Vendedor> vendedor = Optional.empty();
 		
 		Mockito.when(repo.findById(Mockito.anyInt())).thenReturn(vendedor);
-		Mockito.when(service.setVendedorResponseDto(vendedor.get())).thenReturn(vendedorResponseDto);
 		
-		Assertions.assertDoesNotThrow( ()->service.findById(Mockito.anyInt()) );
+		Assertions.assertThrows(GeneralException.class, ()->service.findById(Mockito.anyInt()) );
 		
 	}
 	
@@ -59,16 +57,17 @@ public class VendedorServiceTest {
 	}
 	
 	@Test
-	void listaGeral() {
+	void listaGeralException() {
 		
-		Mockito.when(repo.findAll()).thenReturn(mockedVendedores);
-		Mockito.when(service.converteLista(mockedVendedores)).thenReturn(mockedVendedoresListaResponseDto);
+		List<Vendedor> lista = null;
 		
-		service.findAll();
+		Mockito.when(repo.findAll()).thenReturn(lista);
+		
+		Assertions.assertThrows(GeneralException.class, ()->service.findAll());
 		
 	}
 	
-	@Test
+	@Test()
 	void converteListaVendedores() {
 		
 		Assertions.assertNotNull(service.converteLista(mockedVendedores));
